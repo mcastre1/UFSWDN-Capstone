@@ -54,6 +54,17 @@ class Job(db.Model):
         'material': self.material,
         'status': self.status}
     
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
+    
 '''
 Inventory
 Keep track of how many sinks we have left.
@@ -82,6 +93,17 @@ class Inventory(db.Model):
             'sink_id' : self.sink_id,
             'count' : self.count
         }
+    
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
 
 
 '''
@@ -101,3 +123,14 @@ class Sink(db.Model):
             'id' : self.id,
             'description' : self.description
         }
+
+    def insert(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def update(self):
+        db.session.commit()
