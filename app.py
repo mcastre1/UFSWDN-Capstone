@@ -1,18 +1,12 @@
 from flask import Flask, render_template
 from models import Inventory, Job, Sink
+from models import setup_db
+from flask_cors import CORS
 
 app = Flask(__name__)
+setup_db(app)
+CORS(app)
 
 @app.route('/')
 def home():
-    sink = Sink("Stainless Steel Single Bowl Kitchen Sink")
-    sink.insert()
-
-    sink = Sink("Rect White Porcelain Bathroom Sink")
-    sink.insert()
-
-    sink = Sink("Oval White Porcelain Bathroom Sink")
-    sink.insert()
-
-
-    return render_template('pages/home.html')
+    return render_template('pages/home.html', sinks=(sink.format() for sink in Sink.query.all()))
