@@ -1,21 +1,42 @@
 {% extends 'layouts/main.html' %}
 {% block title %}Create a Job{% endblock %}
 {% block content %}
-<form>
+<form class="needs-validation" method="POST">
     <div class="form-group">
-        <label for="exampleInputEmail1">Email address</label>
-        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp"
-            placeholder="Enter email">
-        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
+        <label for="job_name">Job Name</label>
+        <input type="text" class="form-control" id="job_name" name="job_name"
+            placeholder="Job name" required>
     </div>
     <div class="form-group">
-        <label for="exampleInputPassword1">Password</label>
-        <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+        <label for="contact_name">Contact Name</label>
+        <input type="text" class="form-control" id="contact_name" name="contact_name" placeholder="Contact Name" required>
     </div>
-    <div class="form-check">
-        <input type="checkbox" class="form-check-input" id="exampleCheck1">
-        <label class="form-check-label" for="exampleCheck1">Check me out</label>
+    <div class="form-group">
+        <label for="contact_phone">Contact Phone</label>
+        <input type="text" class="form-control" id="contact_phone" name="contact_phone" placeholder="Contact Phone" required>
     </div>
+    <div class="form-group">
+        <label for="address">Address</label>
+        <input type="text" class="form-control" id="address" name="address" placeholder="Address" required>
+    </div>
+    <div class="form-group">
+        <label for="material">Material</label>
+        <input type="text" class="form-control" id="material" name="material" placeholder="Material">
+    </div>
+    <div class="form-group">
+        <label for="status">Status</label>
+        <input type="text" class="form-control" id="status" name="status" placeholder="Status" required>
+    </div>
+    <div class="form-group">
+        <label for="edge_finish">Edge Finish</label>
+        <input type="text" class="form-control" id="edge_finish" name="edge_finish" placeholder="Edge Finish">
+    </div>
+    <div class="form-group">
+        <label for="sinks">Sinks</label>
+        <input type="text" class="form-control" id="sinks" name="sinks" placeholder="Sinks">
+        <small id="sinks_help" class="form-text text-muted">Please enter a list of sink ids, such as [1,2]</small>
+    </div>
+    
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
 

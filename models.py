@@ -33,6 +33,7 @@ class Job(db.Model):
     __tablename__ = 'Jobs'
 
     id = Column(db.Integer, primary_key=True)
+    job_name = Column(db.String, nullable=False)
     contact_name = Column(db.String, nullable=False)
     contact_phone = Column(db.String, nullable=False)
     address = Column(db.String, nullable=False)
