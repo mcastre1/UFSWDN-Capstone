@@ -1,4 +1,5 @@
 import os
+from flask_migrate import Migrate
 from sqlalchemy import Column, String, create_engine
 from flask_sqlalchemy import SQLAlchemy
 
@@ -8,6 +9,7 @@ if database_path.startswith("postgres://"):
   database_path = database_path.replace("postgres://", "postgresql://", 1)
 
 db = SQLAlchemy()
+
 
 '''
 setup_db(app)
@@ -19,6 +21,7 @@ def setup_db(app, database_path=database_path):
     db.app = app
     db.init_app(app)
     db.create_all()
+    migrate = Migrate(app, db)
 
 
 '''
@@ -30,19 +33,22 @@ class Job(db.Model):
     __tablename__ = 'Jobs'
 
     id = Column(db.Integer, primary_key=True)
-    contact_name = Column(db.String)
-    contact_phone = Column(db.String)
-    address = Column(db.String)
+    contact_name = Column(db.String, nullable=False)
+    contact_phone = Column(db.String, nullable=False)
+    address = Column(db.String, nullable=False)
     material = Column(db.String)
-    status = Column(db.String)
+    status = Column(db.String, nullable=False)
+    edge_finish = Column(db.String)
     sinks = Column(db.ARRAY(db.Integer))
   
-    def __init__(self, contact_name, contact_phone, address, material, sinks):
+    def __init__(self, contact_name, contact_phone, address, material, sinks, status, edge_finish):
         self.contact_name = contact_name
         self.contact_phone = contact_phone
         self.address = address
         self.material = material
         self.sinks = sinks
+        self.status = status
+        self.edge_finish = edge_finish
 
 
     def format(self):
@@ -52,7 +58,9 @@ class Job(db.Model):
         'contact_phone': self.contact_phone,
         'address': self.address,
         'material': self.material,
-        'status': self.status}
+        'sinks': self.sinks,
+        'status': self.status,
+        'edge_finish': self.edge_finish}
     
     def insert(self):
         db.session.add(self)
