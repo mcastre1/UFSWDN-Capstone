@@ -56,6 +56,7 @@ class Job(db.Model):
     def format(self):
         return {
         'id': self.id,
+        'job_name': self.job_name,
         'contact_name': self.contact_name,
         'contact_phone': self.contact_phone,
         'address': self.address,

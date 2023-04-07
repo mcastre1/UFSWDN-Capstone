@@ -3,14 +3,52 @@
 {% block content %}
 
 <div class="page-header">
-  <h1>Sticky footer with fixed navbar</h1>
+  <h1>Current Jobs: </h1>
 </div>
-<p class="lead">Pin a fixed-height footer to the bottom of the viewport in desktop browsers with this custom HTML and
-  CSS. A fixed navbar has been added within <code>#wrap</code> with <code>padding-top: 60px;</code> on the
-  <code>.container</code>.</p>
-  {% for sink in sinks %}
-  <p>{{sink}}</p>
-  {% endfor %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Job Name</th>
+      <th scope="col">Material</th>
+      <th scope="col">Address</th>
+      <th scope="col">Status</th>
+      <th scope="col">Options</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for job in jobs %}
+    <tr>
+      <th scope="row">{{job.id}}</th>
+      <td>{{job.job_name}}</td>
+      <td>{{job.material}}</td>
+      <td>{{job.address}}</td>
+      <td>{{job.status}}</td>
+      <td><a href="{{url_for('view_job', id=job.id)}}"><span class="bi bi-three-dots"></span></a>
+        <a class="delete_job"><span class="bi bi-trash" data-id="{{job.id}}"></span></a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+
+<script>
+  const delete_buttons = document.querySelectorAll('.delete_job');
+
+  for (let i = 0; i < delete_buttons.length; i++) {
+    const delete_button = delete_buttons[i];
+    delete_button.onclick = function (e) {
+      const job_id = e.target.dataset['id'];
+
+      fetch('/job/' + job_id + "/delete_job", {
+        method: 'DELETE'
+      }).then(function () {
+        window.location.reload(true);
+      });
+    }
+  }
+</script>
 
 
 

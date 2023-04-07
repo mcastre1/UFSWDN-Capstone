@@ -12,7 +12,7 @@ CORS(app)
 @app.route('/')
 def home():
     print(Job.query.all())
-    return render_template('pages/home.html', sinks=(sink.format() for sink in Sink.query.all()))
+    return render_template('pages/home.html', jobs=(job.format() for job in Job.query.all()))
 
 @app.route('/job', methods=["POST"])
 def create_job():
@@ -34,7 +34,7 @@ def create_job():
                   material=material, status=status, edge_finish=edge_finish, sinks=list(sinks))   
         job.insert()
         #flash(f"Succesfully Added {job_name} to the jobs list.")
-        return render_template('pages/home.html')
+        return redirect(url_for('home'))
     except :
         abort(400)
 
@@ -43,3 +43,16 @@ def create_job():
 @app.route('/job', methods=["GET"])
 def create_job_form():
     return render_template('pages/create_job.html')
+
+@app.route('/job/<int:id>', methods=["GET"])
+def view_job(id):
+    print(id)
+    return render_template('pages/home.html')
+
+@app.route('/job/<int:id>/delete_job', methods=["DELETE"])
+def delete_job(id):
+    job = Job.query.get(int(id))
+    job.delete()
+
+    print("job deleted")
+    return redirect(url_for('home'))
