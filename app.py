@@ -46,8 +46,29 @@ def create_job_form():
 
 @app.route('/job/<int:id>', methods=["GET"])
 def view_job(id):
-    print(id)
-    return render_template('pages/home.html')
+    job = Job.query.get(int(id))
+    return render_template('pages/view_job.html', job=job.format())
+
+@app.route('/job/<int:id>', methods=["POST"])
+def update_job(id):
+    try:
+        form = request.form
+        job = Job.query.get(int(id))
+
+        job.job_name = form['job_name']
+        job.contact_name = form['contact_name']
+        job.contact_phone = form['contact_phone']
+        job.address = form['address']
+        job.material = form['material']
+        job.status = form['status']
+        job.edge_finish = form['edge_finish']
+        job.sinks = ast.literal_eval(form['sinks'])
+
+        job.update()
+        #flash(f"Succesfully Added {job_name} to the jobs list.")
+        return redirect(url_for('home'))
+    except :
+        abort(400)
 
 @app.route('/job/<int:id>/delete_job', methods=["DELETE"])
 def delete_job(id):
@@ -56,3 +77,7 @@ def delete_job(id):
 
     print("job deleted")
     return redirect(url_for('home'))
+
+@app.route('/inventory', methods=["GET"])
+def inventory():
+    return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()))
