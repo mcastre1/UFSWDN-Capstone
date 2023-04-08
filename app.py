@@ -81,3 +81,7 @@ def delete_job(id):
 @app.route('/inventory', methods=["GET"])
 def inventory():
     return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()))
+
+@app.route('/sinks',methods=["GET"])
+def sinks():
+    return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()))

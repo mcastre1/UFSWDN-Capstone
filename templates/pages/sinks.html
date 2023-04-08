@@ -3,24 +3,22 @@
 {% block content %}
 
 <div class="page-header">
-    <h1>Inventory: </h1>
+    <h1>Sinks: </h1>
   </div>
   <table class="table table-hover">
     <thead>
       <tr>
         <th scope="col">#</th>
         <th scope="col">Description</th>
-        <th scope="col">Count</th>
       </tr>
     </thead>
     <tbody>
-      {% for item in inventory %}
+      {% for sink in sinks %}
       <tr>
-        <th scope="row">{{item.id}}</th>
-        <td>{{item.description}}</td>
-        <td>{{item.count}}</td>
+        <th scope="row">{{sink.id}}</th>
+        <td>{{sink.description}}</td>
         <td><a href=""><span class="bi bi-three-dots"></span></a>
-          <a class="delete_inventory_item"><span class="bi bi-trash" data-id="{{job.id}}"></span></a>
+          <a class="delete_sink"><span class="bi bi-trash" data-id="{{sink.id}}"></span></a>
         </td>
       </tr>
       {% endfor %}
