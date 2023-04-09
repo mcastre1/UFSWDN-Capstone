@@ -82,6 +82,24 @@ def delete_job(id):
 def inventory():
     return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()))
 
+@app.route('/inventory/add', methods=["GET"])
+def add_inventory_item_form():
+    return render_template('/pages/add_inventory_item.html')
+
 @app.route('/sinks',methods=["GET"])
 def sinks():
+    return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()))
+
+@app.route('/sinks/add', methods=["GET"])
+def add_sink_form():
+    return render_template('/pages/add_sink.html')
+
+@app.route('/sinks/add', methods=["POST"])
+def add_sink():
+    form = request.form
+    description = form['description']
+
+    sink = Sink(description=description)
+    sink.insert()
+
     return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()))
