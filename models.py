@@ -84,7 +84,8 @@ class Inventory(db.Model):
     __tablename__ = "Inventory"
 
     id = Column(db.Integer, primary_key=True)
-    sink_id = db.ForeignKey('Sinks.id')
+    sink_id = Column(db.Integer, db.ForeignKey('Sinks.id'))
+    sink = db.relationship("Sink", backref="sink")
     count = Column(db.String)
 
     def __init__(self, sink_id, count):
@@ -99,6 +100,7 @@ class Inventory(db.Model):
         self.count = self.count - count
 
     def format(self):
+        print(self.sink)
         return {
             'id' : self.id,
             'sink_id' : self.sink_id,

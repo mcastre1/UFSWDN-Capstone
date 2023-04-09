@@ -1,0 +1,18 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Create an inventory item{% endblock %}
+{% block content %}
+<form class="needs-validation" method="POST">
+    <div class="form-group">
+        <label for="sink_id">Sink ID</label>
+        <input type="text" class="form-control" id="sink_id" name="sink_id"
+            placeholder="Sink ID" required>
+    </div>
+    <div class="form-group">
+        <label for="count">Count</label>
+        <input type="text" class="form-control" id="count" name="count"
+            placeholder="Count" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+{% endblock %}

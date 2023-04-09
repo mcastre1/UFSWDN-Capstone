@@ -9,6 +9,7 @@
     <thead>
       <tr>
         <th scope="col">#</th>
+        <th scope="col">Sink ID</th>
         <th scope="col">Description</th>
         <th scope="col">Count</th>
       </tr>
@@ -17,10 +18,11 @@
       {% for item in inventory %}
       <tr>
         <th scope="row">{{item.id}}</th>
+        <td>{{item.sink_id}}</td>
         <td>{{item.description}}</td>
         <td>{{item.count}}</td>
         <td><a href=""><span class="bi bi-three-dots"></span></a>
-          <a class="delete_inventory_item"><span class="bi bi-trash" data-id="{{job.id}}"></span></a>
+          <a class="delete_inventory_item"><span class="bi bi-trash" data-id="{{item.id}}"></span></a>
         </td>
       </tr>
       {% endfor %}

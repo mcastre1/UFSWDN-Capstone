@@ -86,6 +86,15 @@ def inventory():
 def add_inventory_item_form():
     return render_template('/pages/add_inventory_item.html')
 
+@app.route('/inventory/add', methods=["POST"])
+def add_inventory_item():
+    form = request.form
+    
+    item = Inventory(sink_id=int(form['sink_id']), count=int(form['count']))
+    item.insert()
+
+    return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()))
+
 @app.route('/sinks',methods=["GET"])
 def sinks():
     return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()))
