@@ -96,6 +96,11 @@
           {% endfor %}
         {% endif %}
       {% endwith %}
+      {% if session %}
+        <h1>Welcome {{session.userinfo.name}}!</h1>            
+      {% else %}
+         <h1>Welcome Guest! Please log in!</h1>
+      {% endif %}
 
       {% block content %}{% endblock %}
       

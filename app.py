@@ -1,18 +1,64 @@
-from flask import Flask, redirect, render_template, request, abort, flash, url_for
+from flask import Flask, redirect, render_template, request, abort, flash, url_for, session
+from urllib.parse import quote_plus, urlencode
+from authlib.integrations.flask_client import OAuth
+from dotenv import find_dotenv, load_dotenv
+from os import environ as env
+
 from models import Inventory, Job, Sink
 from models import setup_db
 from flask_cors import CORS
+
 import ast
 
 app = Flask(__name__)
 setup_db(app)
 CORS(app)
 
+oauth = OAuth(app)
+
+oauth.register(
+    "auth0",
+    client_id="PYEPrbcSnWPlTrIAjvTjp2caniJnSotT",
+    client_secret="yuMq7yBG_y2ht6LXkY_GBlG-mqvP5fPCDfaW5k2Q-2qPCbop1zGL08ad6pmPqWIF",
+    client_kwargs={
+        "scope": "openid profile email",
+    },
+    server_metadata_url='https://dev-nmyxk7hftomeflrd.us.auth0.com/.well-known/openid-configuration'
+)
+
+
+@app.route("/login")
+def login():
+    return oauth.auth0.authorize_redirect(
+        redirect_uri=url_for("callback", _external=True)
+    )
+
+@app.route("/callback", methods=["GET", "POST"])
+def callback():
+    token = oauth.auth0.authorize_access_token()
+    session["user"] = token
+    return redirect("/")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(
+        "https://" + 'dev-nmyxk7hftomeflrd.us.auth0.com'
+        + "/v2/logout?"
+        + urlencode(
+            {
+                "returnTo": url_for("home", _external=True),
+                "client_id": "PYEPrbcSnWPlTrIAjvTjp2caniJnSotT",
+            },
+            quote_via=quote_plus,
+        )
+    )
+
 # Returns a list of all jobs in database.
 @app.route('/')
 def home():
     print(Job.query.all())
-    return render_template('pages/home.html', jobs=(job.format() for job in Job.query.all()))
+    return render_template('pages/home.html', jobs=(job.format() for job in Job.query.all()), session=session.get('user'))
 
 @app.route('/job', methods=["POST"])
 def create_job():
