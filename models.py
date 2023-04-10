@@ -5,6 +5,11 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 database_path = os.environ['DATABASE_URL']
+secret_key = os.environ['APP_SECRET_KEY']
+client_id = os.environ['AUTH0_CLIENT_ID']
+client_secret = os.environ['AUTH0_CLIENT_SECRET']
+domain = os.environ['AUTH0_DOMAIN']
+
 if database_path.startswith("postgres://"):
   database_path = database_path.replace("postgres://", "postgresql://", 1)
 
@@ -18,7 +23,7 @@ setup_db(app)
 def setup_db(app, database_path=database_path):
     app.config["SQLALCHEMY_DATABASE_URI"] = database_path
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.secret_key = 'something unique and secret key'
+    app.secret_key = secret_key
     db.app = app
     db.init_app(app)
     db.create_all()

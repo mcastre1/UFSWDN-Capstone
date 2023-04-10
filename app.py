@@ -2,13 +2,17 @@ from flask import Flask, redirect, render_template, request, abort, flash, url_f
 from urllib.parse import quote_plus, urlencode
 from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
-from os import environ as env
+import os
 
 from models import Inventory, Job, Sink
 from models import setup_db
 from flask_cors import CORS
 
 import ast
+
+client_id = os.environ['AUTH0_CLIENT_ID']
+client_secret = os.environ['AUTH0_CLIENT_SECRET']
+domain = os.environ['AUTH0_DOMAIN']
 
 app = Flask(__name__)
 setup_db(app)
@@ -18,12 +22,12 @@ oauth = OAuth(app)
 
 oauth.register(
     "auth0",
-    client_id="PYEPrbcSnWPlTrIAjvTjp2caniJnSotT",
-    client_secret="yuMq7yBG_y2ht6LXkY_GBlG-mqvP5fPCDfaW5k2Q-2qPCbop1zGL08ad6pmPqWIF",
+    client_id=client_id,
+    client_secret=client_secret,
     client_kwargs={
         "scope": "openid profile email",
     },
-    server_metadata_url='https://dev-nmyxk7hftomeflrd.us.auth0.com/.well-known/openid-configuration'
+    server_metadata_url=f'https://{domain}/.well-known/openid-configuration'
 )
 
 
@@ -88,12 +92,12 @@ def create_job():
 
 @app.route('/job', methods=["GET"])
 def create_job_form():
-    return render_template('pages/create_job.html')
+    return render_template('pages/create_job.html', session=session.get('user'))
 
 @app.route('/job/<int:id>', methods=["GET"])
 def view_job(id):
     job = Job.query.get(int(id))
-    return render_template('pages/view_job.html', job=job.format())
+    return render_template('pages/view_job.html', job=job.format(), session=session.get('user'))
 
 @app.route('/job/<int:id>', methods=["POST"])
 def update_job(id):
@@ -126,12 +130,12 @@ def delete_job(id):
 
 @app.route('/inventory', methods=["GET"])
 def inventory():
-    return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()))
+    return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()), session=session.get('user'))
 
 @app.route('/inventory/<int:id>', methods=["GET"])
 def view_inventory_item(id):
     inventory_item = Inventory.query.get(int(id))
-    return render_template('/pages/view_inventory_item.html', inventory_item = inventory_item.format())
+    return render_template('/pages/view_inventory_item.html', inventory_item = inventory_item.format(), session=session.get('user'))
 
 @app.route('/inventory/<int:id>', methods=["POST"])
 def update_inventory_item(id):
@@ -148,7 +152,7 @@ def update_inventory_item(id):
 
 @app.route('/inventory/add', methods=["GET"])
 def add_inventory_item_form():
-    return render_template('/pages/add_inventory_item.html')
+    return render_template('/pages/add_inventory_item.html', session=session.get('user'))
 
 @app.route('/inventory/add', methods=["POST"])
 def add_inventory_item():
@@ -157,17 +161,17 @@ def add_inventory_item():
     item = Inventory(sink_id=int(form['sink_id']), count=int(form['count']))
     item.insert()
 
-    return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()))
+    return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()), session=session.get('user'))
 
 @app.route('/sinks',methods=["GET"])
 def sinks():
-    return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()))
+    return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()), session=session.get('user'))
 
 @app.route('/sinks/<int:id>', methods=["GET"])
 def view_sink(id):
     sink = Sink.query.get(int(id))
 
-    return render_template('/pages/view_sink.html', sink=sink.format())
+    return render_template('/pages/view_sink.html', sink=sink.format(), session=session.get('user'))
 
 @app.route('/sinks/<int:id>', methods=["POST"])
 def update_sink(id):
@@ -184,7 +188,7 @@ def update_sink(id):
 
 @app.route('/sinks/add', methods=["GET"])
 def add_sink_form():
-    return render_template('/pages/add_sink.html')
+    return render_template('/pages/add_sink.html', session=session.get('user'))
 
 @app.route('/sinks/add', methods=["POST"])
 def add_sink():
@@ -194,4 +198,4 @@ def add_sink():
     sink = Sink(description=description)
     sink.insert()
 
-    return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()))
+    return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()), session=session.get('user'))
