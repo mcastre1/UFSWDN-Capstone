@@ -17,7 +17,7 @@
       <tr>
         <th scope="row">{{sink.id}}</th>
         <td>{{sink.description}}</td>
-        <td><a href=""><span class="bi bi-three-dots"></span></a>
+        <td><a href="{{url_for('view_sink', id=sink.id)}}"><span class="bi bi-three-dots"></span></a>
           <a class="delete_sink"><span class="bi bi-trash" data-id="{{sink.id}}"></span></a>
         </td>
       </tr>

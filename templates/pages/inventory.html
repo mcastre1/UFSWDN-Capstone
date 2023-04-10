@@ -21,7 +21,7 @@
         <td>{{item.sink_id}}</td>
         <td>{{item.description}}</td>
         <td>{{item.count}}</td>
-        <td><a href=""><span class="bi bi-three-dots"></span></a>
+        <td><a href="{{url_for('view_inventory_item', id=item.id)}}"><span class="bi bi-three-dots"></span></a>
           <a class="delete_inventory_item"><span class="bi bi-trash" data-id="{{item.id}}"></span></a>
         </td>
       </tr>
