@@ -104,6 +104,7 @@ class Inventory(db.Model):
         return {
             'id' : self.id,
             'sink_id' : self.sink_id,
+            'description' : self.sink.format()['description'],
             'count' : self.count
         }
     

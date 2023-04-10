@@ -82,6 +82,24 @@ def delete_job(id):
 def inventory():
     return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()))
 
+@app.route('/inventory/<int:id>', methods=["GET"])
+def view_inventory_item(id):
+    inventory_item = Inventory.query.get(int(id))
+    return render_template('/pages/view_inventory_item.html', inventory_item = inventory_item.format())
+
+@app.route('/inventory/<int:id>', methods=["POST"])
+def update_inventory_item(id):
+    form = request.form
+    count = int(form['count'])
+
+    inventory_item = Inventory.query.get(int(id))
+    inventory_item.count = count
+
+    inventory_item.update()
+
+    return redirect(url_for('inventory'))
+
+
 @app.route('/inventory/add', methods=["GET"])
 def add_inventory_item_form():
     return render_template('/pages/add_inventory_item.html')
@@ -98,6 +116,25 @@ def add_inventory_item():
 @app.route('/sinks',methods=["GET"])
 def sinks():
     return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()))
+
+@app.route('/sinks/<int:id>', methods=["GET"])
+def view_sink(id):
+    sink = Sink.query.get(int(id))
+
+    return render_template('/pages/view_sink.html', sink=sink.format())
+
+@app.route('/sinks/<int:id>', methods=["POST"])
+def update_sink(id):
+    form = request.form
+    sink = Sink.query.get(int(id))
+
+    description = form['description']
+
+    sink.description = description
+
+    sink.update()
+
+    return redirect(url_for('sinks')) 
 
 @app.route('/sinks/add', methods=["GET"])
 def add_sink_form():

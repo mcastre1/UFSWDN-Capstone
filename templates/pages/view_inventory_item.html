@@ -1,0 +1,19 @@
+{% extends 'layouts/main.html' %}
+{% block title %}Create a Job{% endblock %}
+{% block content %}
+<form class="needs-validation" method="POST">
+    <div class="form-group">
+        <label for="description">Description</label>
+        <input type="text" class="form-control" id="description" name="description"
+            placeholder="Description" value="{{inventory_item.description}}" required>
+    </div>
+    <div class="form-group">
+        <label for="count">Count</label>
+        <input type="text" class="form-control" id="count" 
+        value="{{inventory_item.count}}" name="count" placeholder="Count" required>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+{% endblock %}
