@@ -1,16 +1,11 @@
-from flask import Flask, redirect, render_template, request, abort, flash, url_for, session
+from flask import Flask, redirect, render_template, request, abort, url_for, session
 from urllib.parse import quote_plus, urlencode
 from authlib.integrations.flask_client import OAuth
-from dotenv import find_dotenv, load_dotenv
 import os
 
 from models import Inventory, Job, Sink
 from models import setup_db
 from flask_cors import CORS
-
-from auth.auth import AuthError, requires_auth
-
-import requests
 
 import ast
 
@@ -66,7 +61,6 @@ def logout():
 
 # Returns a list of all jobs in database.
 @app.route('/')
-
 def home():
     return render_template('pages/home.html', jobs=(job.format() for job in Job.query.all()), session=session.get('user'))
 
