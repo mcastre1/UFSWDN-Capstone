@@ -8,6 +8,10 @@ from models import Inventory, Job, Sink
 from models import setup_db
 from flask_cors import CORS
 
+from auth.auth import AuthError, requires_auth
+
+import requests
+
 import ast
 
 client_id = os.environ['AUTH0_CLIENT_ID']
@@ -40,7 +44,9 @@ def login():
 @app.route("/callback", methods=["GET", "POST"])
 def callback():
     token = oauth.auth0.authorize_access_token()
+
     session["user"] = token
+
     return redirect("/")
 
 @app.route("/logout")
@@ -60,13 +66,12 @@ def logout():
 
 # Returns a list of all jobs in database.
 @app.route('/')
+
 def home():
-    print(Job.query.all())
     return render_template('pages/home.html', jobs=(job.format() for job in Job.query.all()), session=session.get('user'))
 
 @app.route('/job', methods=["POST"])
 def create_job():
-    #print(request.get_json())
     try:
         form = request.form
         print(form)
