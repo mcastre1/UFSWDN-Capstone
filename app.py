@@ -1,4 +1,4 @@
-from flask import Flask, redirect, render_template, request, abort, url_for, session
+from flask import Flask, jsonify, redirect, render_template, request, abort, url_for, session
 from urllib.parse import quote_plus, urlencode
 from authlib.integrations.flask_client import OAuth
 import os
@@ -17,32 +17,28 @@ app = Flask(__name__)
 setup_db(app)
 CORS(app)
 
-oauth = OAuth(app)
 
-oauth.register(
-    "auth0",
-    client_id=client_id,
-    client_secret=client_secret,
-    client_kwargs={
-        "scope": "openid profile email",
-    },
-    server_metadata_url=f'https://{domain}/.well-known/openid-configuration'
-)
+#Helper method for building authorization url.
+#@app.route("/authorization/url", methods=["GET"])
+@app.context_processor
+def generate_auth_url():
+    
+    AUTH0_JWT_API_AUDIENCE = "capstoneAPI"
+    AUTH0_CALLBACK_URL = "http://127.0.0.1:5000/"
 
+    url = f'https://{domain}/authorize' \
+        f'?audience={AUTH0_JWT_API_AUDIENCE}' \
+        f'&response_type=token&client_id=' \
+        f'{client_id}&redirect_uri=' \
+        f'{AUTH0_CALLBACK_URL}'
+        
+    return dict(auth_url=url)
 
-@app.route("/login")
-def login():
-    return oauth.auth0.authorize_redirect(
-        redirect_uri=url_for("callback", _external=True)
-    )
-
-@app.route("/callback", methods=["GET", "POST"])
-def callback():
-    token = oauth.auth0.authorize_access_token()
-
-    session["user"] = token
-
-    return redirect("/")
+# Helper route to set the current users jwt in session.
+@app.route('/set_jwt/<string:jwt>', methods=['POST'])
+def set_jwt_session(jwt):
+    session['user-jwt'] = jwt
+    return('/')
 
 @app.route("/logout")
 def logout():
@@ -62,7 +58,7 @@ def logout():
 # Returns a list of all jobs in database.
 @app.route('/')
 def home():
-    return render_template('pages/home.html', jobs=(job.format() for job in Job.query.all()), session=session.get('user'))
+    return render_template('pages/home.html', jobs=(job.format() for job in Job.query.all()), session=session.get('user-jwt'))
 
 @app.route('/job', methods=["POST"])
 def create_job():
