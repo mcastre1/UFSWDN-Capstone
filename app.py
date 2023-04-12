@@ -7,6 +7,8 @@ from models import Inventory, Job, Sink
 from models import setup_db
 from flask_cors import CORS
 
+from .auth.auth import AuthError, requires_auth
+
 import ast
 
 client_id = os.environ['AUTH0_CLIENT_ID']
@@ -40,6 +42,7 @@ def set_jwt_session(jwt):
     session['user-jwt'] = jwt
     return('/')
 
+# Route for logging out of auth0 service and clearing off session.
 @app.route("/logout")
 def logout():
     session.clear()
@@ -60,6 +63,7 @@ def logout():
 def home():
     return render_template('pages/home.html', jobs=(job.format() for job in Job.query.all()), session=session.get('user-jwt'))
 
+# 
 @app.route('/job', methods=["POST"])
 def create_job():
     try:
@@ -194,3 +198,64 @@ def add_sink():
     sink.insert()
 
     return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()), session=session.get('user'))
+
+
+@app.errorhandler(422)
+def unprocessable(error):
+    return jsonify({
+        "success": False,
+        "error": 422,
+        "message": "unprocessable"
+    }), 422
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+        "success": False,
+        "error": 404,
+        "message": "resource not found"
+    }), 404
+
+@app.errorhandler(AuthError)
+def auth_error(error):
+    return jsonify({
+        "success": False,
+        "error": error.status_code,
+        "message": error.error['description']
+    }), error.status_code
+
+
+@app.errorhandler(401)
+def unauthorized(error):
+    return jsonify({
+        "success": False,
+        "error": 401,
+        "message": 'Unathorized'
+    }), 401
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    return jsonify({
+        "success": False,
+        "error": 500,
+        "message": 'Internal Server Error'
+    }), 500
+
+
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify({
+        "success": False,
+        "error": 400,
+        "message": 'Bad Request'
+    }), 400
+
+
+@app.errorhandler(405)
+def method_not_allowed(error):
+    return jsonify({
+        "success": False,
+        "error": 405,
+        "message": 'Method Not Allowed'
+    }), 405
