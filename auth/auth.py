@@ -1,7 +1,7 @@
 from os import environ
 import os
 import json
-from flask import request, _request_ctx_stack, abort
+from flask import request, _request_ctx_stack, abort, session
 from functools import wraps
 from jose import jwt
 from urllib.request import urlopen
@@ -26,7 +26,10 @@ class AuthError(Exception):
 # Auth Header
 def get_token_auth_header():
 
-    auth_header = request.headers.get("Authorization", None)
+    if session['user-jwt']:
+        auth_header = "Bearer " + session['user-jwt']
+    else: 
+        auth_header = request.headers.get("Authorization", None)
 
     if not auth_header:
         raise AuthError({"code": "authorization_header_missing",
