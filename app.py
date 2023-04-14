@@ -66,14 +66,14 @@ def logout():
 
 # Returns a list of all jobs in database.
 @app.route('/')
-@requires_auth(permission="read:jobs")
 def home():
     return render_template('pages/home.html', jobs=(job.format() for job in Job.query.all()), session=session)
 
 
+# This endpoint creates a job through a request form data.
 @app.route('/job', methods=["POST"])
 @requires_auth(permission="create:job")
-def create_job():
+def create_job(jwt):
     try:
         form = request.form
 
@@ -95,25 +95,37 @@ def create_job():
         abort(400)
 
     
-
+# Endpoint renders the form for creating a job
 @app.route('/job', methods=["GET"])
 @requires_auth(permission="create:job")
-def create_job_form():
+def create_job_form(jwt):
     return render_template('pages/create_job.html', session=session)
 
-
+# Returns a template containing a specific jobs details
 @app.route('/job/<int:id>', methods=["GET"])
 @requires_auth(permission='read:job-details')
 def view_job(jwt, id):
-    job = Job.query.get(int(id))
-    return render_template('pages/view_job.html', job=job.format(), session=session)
+    try:
+        job = Job.query.get(int(id))
 
+        if not job:
+            abort(404)
+
+        return render_template('pages/view_job.html', job=job.format(), session=session)
+    
+    except:
+        abort(400)
+    
+# Updates given job with new values.
 @app.route('/job/<int:id>', methods=["POST"])
 @requires_auth(permission="patch:job")
-def update_job(id):
+def update_job(jwt, id):
     try:
         form = request.form
         job = Job.query.get(int(id))
+
+        if not job:
+            abort(404)
 
         job.job_name = form['job_name']
         job.contact_name = form['contact_name']
@@ -125,102 +137,142 @@ def update_job(id):
         job.sinks = ast.literal_eval(form['sinks'])
 
         job.update()
-        #flash(f"Succesfully Added {job_name} to the jobs list.")
         return redirect(url_for('home'))
     except :
         abort(400)
 
+# Deletes a specific job
 @app.route('/job/<int:id>/delete_job', methods=["DELETE"])
 @requires_auth(permission="delete:job")
-def delete_job(id):
-    job = Job.query.get(int(id))
-    job.delete()
+def delete_job(jwt, id):
+    try:
+        job = Job.query.get(int(id))
+        if not job:
+            abort(404)
 
-    print("job deleted")
-    return redirect(url_for('home'))
+        job.delete()
+        return redirect(url_for('home'))
+    except:
+        return(400)
 
+# Returns template containing all inventory items.
 @app.route('/inventory', methods=["GET"])
 @requires_auth(permission="read:inventory")
-def inventory():
+def inventory(jwt):
     return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()), session=session)
 
+
+# Returns a template containing a specific inventory item's details
 @app.route('/inventory/<int:id>', methods=["GET"])
 @requires_auth("read:inventory_item")
-def view_inventory_item(id):
-    inventory_item = Inventory.query.get(int(id))
-    return render_template('/pages/view_inventory_item.html', inventory_item = inventory_item.format(), session=session)
+def view_inventory_item(jwt, id):
+    try:
+        inventory_item = Inventory.query.get(int(id))
+        if not inventory_item:
+            abort(404)
+        return render_template('/pages/view_inventory_item.html', inventory_item = inventory_item.format(), session=session)
+    except:
+        abort(400)
 
+# Updates a specific inventory item with new values.
 @app.route('/inventory/<int:id>', methods=["POST"])
 @requires_auth("patch:inventory_item")
-def update_inventory_item(id):
-    form = request.form
-    count = int(form['count'])
+def update_inventory_item(jwt, id):
+    try:
+        form = request.form
+        count = int(form['count'])
 
-    inventory_item = Inventory.query.get(int(id))
-    inventory_item.count = count
+        inventory_item = Inventory.query.get(int(id))
+        if not inventory_item:
+            abort(404)
 
-    inventory_item.update()
+        inventory_item.count = count
 
-    return redirect(url_for('inventory'))
+        inventory_item.update()
 
+        return redirect(url_for('inventory'))
+    except:
+        abort(400)
 
+# Returns the form template for inventory item creation
 @app.route('/inventory/add', methods=["GET"])
 @requires_auth(permission="create:inventory_item")
-def add_inventory_item_form():
+def add_inventory_item_form(jwt):
     return render_template('/pages/add_inventory_item.html', session=session)
 
+# Creates a new inventory_item.
 @app.route('/inventory/add', methods=["POST"])
 @requires_auth(permission="create:inventory_item")
-def add_inventory_item():
-    form = request.form
+def add_inventory_item(jwt):
+    try:
+        form = request.form
     
-    item = Inventory(sink_id=int(form['sink_id']), count=int(form['count']))
-    item.insert()
+        item = Inventory(sink_id=int(form['sink_id']), count=int(form['count']))
+        item.insert()
 
-    return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()), session=session)
+        return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()), session=session)
+    except:
+        abort(400)
 
+# Returns a template with all available sinks
 @app.route('/sinks',methods=["GET"])
 @requires_auth(permission="read:sinks")
-def sinks():
+def sinks(jwt):
     return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()), session=session)
 
+# Returns a template with a specific sink details.
 @app.route('/sinks/<int:id>', methods=["GET"])
 @requires_auth(permission="read:sink")
-def view_sink(id):
-    sink = Sink.query.get(int(id))
+def view_sink(jwt, id):
+    try:
+        sink = Sink.query.get(int(id))
+        if not sink:
+            abort(404)
+        return render_template('/pages/view_sink.html', sink=sink.format(), session=session)
+    except:
+        abort(400)
 
-    return render_template('/pages/view_sink.html', sink=sink.format(), session=session)
-
+# Updates a specific sink details.
 @app.route('/sinks/<int:id>', methods=["POST"])
 @requires_auth(permission="patch:sink")
-def update_sink(id):
-    form = request.form
-    sink = Sink.query.get(int(id))
+def update_sink(jwt, id):
+    try:
+        form = request.form
+        sink = Sink.query.get(int(id))
 
-    description = form['description']
+        if not sink:
+            abort(404)
 
-    sink.description = description
+        description = form['description']
 
-    sink.update()
+        sink.description = description
 
-    return redirect(url_for('sinks')) 
+        sink.update()
 
+        return redirect(url_for('sinks')) 
+    except:
+        abort(400)
+
+# Returns a template containing a form for sink creation.
 @app.route('/sinks/add', methods=["GET"])
 @requires_auth(permission="create:sink")
-def add_sink_form():
+def add_sink_form(jwt):
     return render_template('/pages/add_sink.html', session=session)
 
+# Creates a new sink.
 @app.route('/sinks/add', methods=["POST"])
 @requires_auth(permission="create:sink")
-def add_sink():
-    form = request.form
-    description = form['description']
+def add_sink(jwt):
+    try:
+        form = request.form
+        description = form['description']
 
-    sink = Sink(description=description)
-    sink.insert()
+        sink = Sink(description=description)
+        sink.insert()
 
-    return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()), session=session)
-
+        return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()), session=session)
+    except:
+        abort(400)
 
 @app.errorhandler(422)
 def unprocessable(error):
