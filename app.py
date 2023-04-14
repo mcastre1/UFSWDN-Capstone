@@ -66,15 +66,17 @@ def logout():
 
 # Returns a list of all jobs in database.
 @app.route('/')
+@requires_auth(permission="read:jobs")
 def home():
     return render_template('pages/home.html', jobs=(job.format() for job in Job.query.all()), session=session)
 
-# 
+
 @app.route('/job', methods=["POST"])
+@requires_auth(permission="create:job")
 def create_job():
     try:
         form = request.form
-        print(form)
+
         job_name = form['job_name']
         contact_name = form['contact_name']
         contact_phone = form['contact_phone']
@@ -83,12 +85,11 @@ def create_job():
         status = form['status']
         edge_finish = form['edge_finish']
         sinks = ast.literal_eval(form['sinks'])
-        print(sinks)
 
         job = Job(job_name=job_name, contact_name=contact_name, contact_phone=contact_phone, address=address,
                   material=material, status=status, edge_finish=edge_finish, sinks=list(sinks))   
         job.insert()
-        #flash(f"Succesfully Added {job_name} to the jobs list.")
+
         return redirect(url_for('home'))
     except :
         abort(400)
@@ -96,6 +97,7 @@ def create_job():
     
 
 @app.route('/job', methods=["GET"])
+@requires_auth(permission="create:job")
 def create_job_form():
     return render_template('pages/create_job.html', session=session)
 
@@ -107,6 +109,7 @@ def view_job(jwt, id):
     return render_template('pages/view_job.html', job=job.format(), session=session)
 
 @app.route('/job/<int:id>', methods=["POST"])
+@requires_auth(permission="patch:job")
 def update_job(id):
     try:
         form = request.form
@@ -128,6 +131,7 @@ def update_job(id):
         abort(400)
 
 @app.route('/job/<int:id>/delete_job', methods=["DELETE"])
+@requires_auth(permission="delete:job")
 def delete_job(id):
     job = Job.query.get(int(id))
     job.delete()
@@ -136,15 +140,18 @@ def delete_job(id):
     return redirect(url_for('home'))
 
 @app.route('/inventory', methods=["GET"])
+@requires_auth(permission="read:inventory")
 def inventory():
     return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()), session=session)
 
 @app.route('/inventory/<int:id>', methods=["GET"])
+@requires_auth("read:inventory_item")
 def view_inventory_item(id):
     inventory_item = Inventory.query.get(int(id))
     return render_template('/pages/view_inventory_item.html', inventory_item = inventory_item.format(), session=session)
 
 @app.route('/inventory/<int:id>', methods=["POST"])
+@requires_auth("patch:inventory_item")
 def update_inventory_item(id):
     form = request.form
     count = int(form['count'])
@@ -158,10 +165,12 @@ def update_inventory_item(id):
 
 
 @app.route('/inventory/add', methods=["GET"])
+@requires_auth(permission="create:inventory_item")
 def add_inventory_item_form():
     return render_template('/pages/add_inventory_item.html', session=session)
 
 @app.route('/inventory/add', methods=["POST"])
+@requires_auth(permission="create:inventory_item")
 def add_inventory_item():
     form = request.form
     
@@ -171,16 +180,19 @@ def add_inventory_item():
     return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()), session=session)
 
 @app.route('/sinks',methods=["GET"])
+@requires_auth(permission="read:sinks")
 def sinks():
     return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()), session=session)
 
 @app.route('/sinks/<int:id>', methods=["GET"])
+@requires_auth(permission="read:sink")
 def view_sink(id):
     sink = Sink.query.get(int(id))
 
     return render_template('/pages/view_sink.html', sink=sink.format(), session=session)
 
 @app.route('/sinks/<int:id>', methods=["POST"])
+@requires_auth(permission="patch:sink")
 def update_sink(id):
     form = request.form
     sink = Sink.query.get(int(id))
@@ -194,10 +206,12 @@ def update_sink(id):
     return redirect(url_for('sinks')) 
 
 @app.route('/sinks/add', methods=["GET"])
+@requires_auth(permission="create:sink")
 def add_sink_form():
     return render_template('/pages/add_sink.html', session=session)
 
 @app.route('/sinks/add', methods=["POST"])
+@requires_auth(permission="create:sink")
 def add_sink():
     form = request.form
     description = form['description']
