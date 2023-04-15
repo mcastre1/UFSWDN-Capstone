@@ -29,4 +29,21 @@
     </tbody>
   </table>
 
+  <script>
+    const delete_buttons = document.querySelectorAll('.delete_inventory_item');
+  
+    for (let i = 0; i < delete_buttons.length; i++) {
+      const delete_button = delete_buttons[i];
+      delete_button.onclick = function (e) {
+        const inventory_item_id = e.target.dataset['id'];
+  
+        fetch('/inventory/' + inventory_item_id + "/delete_inventory_item", {
+          method: 'DELETE'
+        }).then(function () {
+          window.location.reload(true);
+        });
+      }
+    }
+  </script>
+
   {% endblock %}

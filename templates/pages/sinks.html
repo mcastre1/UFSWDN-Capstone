@@ -25,4 +25,21 @@
     </tbody>
   </table>
 
+  <script>
+    const delete_buttons = document.querySelectorAll('.delete_sink');
+  
+    for (let i = 0; i < delete_buttons.length; i++) {
+      const delete_button = delete_buttons[i];
+      delete_button.onclick = function (e) {
+        const sink_id = e.target.dataset['id'];
+  
+        fetch('/sinks/' + sink_id + "/delete_sink", {
+          method: 'DELETE'
+        }).then(function () {
+          window.location.reload(true);
+        });
+      }
+    }
+  </script>
+
   {% endblock %}

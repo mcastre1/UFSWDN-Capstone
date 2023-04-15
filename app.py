@@ -15,6 +15,9 @@ client_id = os.environ['AUTH0_CLIENT_ID']
 client_secret = os.environ['AUTH0_CLIENT_SECRET']
 domain = os.environ['AUTH0_DOMAIN']
 
+test = False
+
+
 app = Flask(__name__)
 setup_db(app)
 CORS(app)
@@ -67,8 +70,11 @@ def logout():
 # Returns a list of all jobs in database.
 @app.route('/')
 def home():
-    return render_template('pages/home.html', jobs=(job.format() for job in Job.query.all()), session=session)
-
+    if not test:
+        return render_template('pages/home.html', jobs=(job.format() for job in Job.query.all()), session=session)
+    else:
+        return jsonify({"success": True,
+                        "jobs": list(job.format() for job in Job.query.all())})
 
 # This endpoint creates a job through a request form data.
 @app.route('/job', methods=["POST"])
@@ -90,7 +96,11 @@ def create_job(jwt):
                   material=material, status=status, edge_finish=edge_finish, sinks=list(sinks))   
         job.insert()
 
-        return redirect(url_for('home'))
+        if not test:
+            return redirect(url_for('home'))
+        else:
+            return jsonify({"success": True,
+                        "jobs": []})
     except :
         abort(400)
 
@@ -99,8 +109,11 @@ def create_job(jwt):
 @app.route('/job', methods=["GET"])
 @requires_auth(permission="create:job")
 def create_job_form(jwt):
-    return render_template('pages/create_job.html', session=session)
-
+    if not test:
+        return render_template('pages/create_job.html', session=session)
+    else:
+        return jsonify({"success": True})
+    
 # Returns a template containing a specific jobs details
 @app.route('/job/<int:id>', methods=["GET"])
 @requires_auth(permission='read:job-details')
@@ -111,8 +124,11 @@ def view_job(jwt, id):
         if not job:
             abort(404)
 
-        return render_template('pages/view_job.html', job=job.format(), session=session)
-    
+        if not test:
+            return render_template('pages/view_job.html', job=job.format(), session=session)
+        else:
+            return jsonify({"success": True,
+                        "job": job.format()}) 
     except:
         abort(400)
     
@@ -137,7 +153,13 @@ def update_job(jwt, id):
         job.sinks = ast.literal_eval(form['sinks'])
 
         job.update()
-        return redirect(url_for('home'))
+
+        if not test:
+            return redirect(url_for('home'))
+        else:
+            return jsonify({"success": True,
+                        "job":job.format()})
+        
     except :
         abort(400)
 
@@ -151,7 +173,12 @@ def delete_job(jwt, id):
             abort(404)
 
         job.delete()
-        return redirect(url_for('home'))
+        
+        if not test:
+            return redirect(url_for('home'))
+        else:
+            return jsonify({"success": True,
+                        "job": job.format()['id']})
     except:
         return(400)
 
@@ -159,8 +186,11 @@ def delete_job(jwt, id):
 @app.route('/inventory', methods=["GET"])
 @requires_auth(permission="read:inventory")
 def inventory(jwt):
-    return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()), session=session)
-
+    print (Inventory.query.all())
+    if not test:
+        return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()), session=session)
+    else:
+        return jsonify({"success": True})
 
 # Returns a template containing a specific inventory item's details
 @app.route('/inventory/<int:id>', methods=["GET"])
@@ -170,7 +200,11 @@ def view_inventory_item(jwt, id):
         inventory_item = Inventory.query.get(int(id))
         if not inventory_item:
             abort(404)
-        return render_template('/pages/view_inventory_item.html', inventory_item = inventory_item.format(), session=session)
+        if not test:
+            return render_template('/pages/view_inventory_item.html', inventory_item = inventory_item.format(), session=session)
+        else:
+            return jsonify({"success": True,
+                        "inventory_item": inventory_item.format()})
     except:
         abort(400)
 
@@ -189,8 +223,11 @@ def update_inventory_item(jwt, id):
         inventory_item.count = count
 
         inventory_item.update()
-
-        return redirect(url_for('inventory'))
+        if not test:
+            return redirect(url_for('inventory'))
+        else:
+            return jsonify({"success": True,
+                        "inventory_item": inventory_item.format()})
     except:
         abort(400)
 
@@ -198,28 +235,60 @@ def update_inventory_item(jwt, id):
 @app.route('/inventory/add', methods=["GET"])
 @requires_auth(permission="create:inventory_item")
 def add_inventory_item_form(jwt):
-    return render_template('/pages/add_inventory_item.html', session=session)
-
+    if not test:
+        return render_template('/pages/add_inventory_item.html', session=session)
+    else:
+        return jsonify({"success": True})
+    
 # Creates a new inventory_item.
 @app.route('/inventory/add', methods=["POST"])
 @requires_auth(permission="create:inventory_item")
 def add_inventory_item(jwt):
+
     try:
         form = request.form
-    
+
         item = Inventory(sink_id=int(form['sink_id']), count=int(form['count']))
         item.insert()
-
-        return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()), session=session)
+        
+        if not test:
+            print("here")
+            return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()), session=session)
+        else:
+            return jsonify({"success": True,
+                        "inventory_items": [inventory_item.format() for inventory_item in Inventory.query.all()]})
     except:
         abort(400)
+
+# @app.route('/inventory/<int:id>/delete_inventory_item', methods=["DELETE"])
+# @requires_auth(permission="delete:inventory_item")
+# def delete_inventory_item(jwt, id):
+#     try:
+#         inventory_item = Inventory.query.get(int(id))
+
+#         if not inventory_item:
+#             abort(404)
+
+#         inventory_item.delete()
+
+#         if not test:
+#             return redirect(url_for('inventory'))
+#         else:
+#             return jsonify({"success": True,
+#                         "inventory_item": inventory_item.format()['id']})
+
+#     except:
+#         abort(400)
 
 # Returns a template with all available sinks
 @app.route('/sinks',methods=["GET"])
 @requires_auth(permission="read:sinks")
 def sinks(jwt):
-    return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()), session=session)
-
+    if not test:
+        return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()), session=session)
+    else:
+        return jsonify({"success": True, "sinks": [sink.format() for sink in Sink.query.all()]})
+    
 # Returns a template with a specific sink details.
 @app.route('/sinks/<int:id>', methods=["GET"])
 @requires_auth(permission="read:sink")
@@ -228,7 +297,11 @@ def view_sink(jwt, id):
         sink = Sink.query.get(int(id))
         if not sink:
             abort(404)
-        return render_template('/pages/view_sink.html', sink=sink.format(), session=session)
+        if not test:
+            return render_template('/pages/view_sink.html', sink=sink.format(), session=session)
+        else:
+            return jsonify({"success": True,
+                        "sink": sink.format()})
     except:
         abort(400)
 
@@ -248,8 +321,31 @@ def update_sink(jwt, id):
         sink.description = description
 
         sink.update()
+        if not test:
+            return redirect(url_for('sinks')) 
+        else:
+            return jsonify({"success": True,
+                        "sink": sink.format()})
+    except:
+        abort(400)
 
-        return redirect(url_for('sinks')) 
+@app.route('/sinks/<int:id>/delete_sink', methods=["DELETE"])
+@requires_auth(permission="delete:sink")
+def delete_sink(jwt, id):
+    try:
+        sink = Sink.query.get(int(id))
+
+        if not sink:
+            abort(404)
+
+        sink.delete()
+
+        if not test:
+            return redirect(url_for('sinks'))
+        else:
+            return jsonify({"success": True,
+                        "sink": sink.format()['id']})
+
     except:
         abort(400)
 
@@ -257,8 +353,11 @@ def update_sink(jwt, id):
 @app.route('/sinks/add', methods=["GET"])
 @requires_auth(permission="create:sink")
 def add_sink_form(jwt):
-    return render_template('/pages/add_sink.html', session=session)
-
+    if not test:
+        return render_template('/pages/add_sink.html', session=session)
+    else:
+        return jsonify({"success": True})
+    
 # Creates a new sink.
 @app.route('/sinks/add', methods=["POST"])
 @requires_auth(permission="create:sink")
@@ -270,7 +369,11 @@ def add_sink(jwt):
         sink = Sink(description=description)
         sink.insert()
 
-        return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()), session=session)
+        if not test:
+            return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()), session=session)
+        else:
+            return jsonify({"success": True,
+                        "sinks": [sink.format() for sink in Sink.query.all()]})
     except:
         abort(400)
 
