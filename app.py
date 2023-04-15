@@ -29,7 +29,7 @@ CORS(app)
 def generate_auth_url():
     
     AUTH0_JWT_API_AUDIENCE = "capstoneAPI"
-    AUTH0_CALLBACK_URL = "http://mccapstone.herokuapp.com/"
+    AUTH0_CALLBACK_URL = "http://127.0.0.1:5000/"
 
     url = f'https://{domain}/authorize' \
         f'?audience={AUTH0_JWT_API_AUDIENCE}' \
