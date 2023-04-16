@@ -14,6 +14,8 @@ import ast
 client_id = os.environ['AUTH0_CLIENT_ID']
 client_secret = os.environ['AUTH0_CLIENT_SECRET']
 domain = os.environ['AUTH0_DOMAIN']
+audience = os.environ['AUTH0_AUDIENCE']
+callback = os.environ['AUTH0_CALLBACK']
 
 test = False
 
@@ -28,14 +30,13 @@ CORS(app)
 @app.context_processor
 def generate_auth_url():
     
-    AUTH0_JWT_API_AUDIENCE = "capstoneAPI"
-    AUTH0_CALLBACK_URL = "http://mccapstone.herokuapp.com/"
+    
 
     url = f'https://{domain}/authorize' \
-        f'?audience={AUTH0_JWT_API_AUDIENCE}' \
+        f'?audience={audience}' \
         f'&response_type=token&client_id=' \
         f'{client_id}&redirect_uri=' \
-        f'{AUTH0_CALLBACK_URL}'
+        f'{callback}'
         
     return dict(auth_url=url)
 
