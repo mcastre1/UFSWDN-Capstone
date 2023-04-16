@@ -25,22 +25,22 @@ setup_db(app)
 CORS(app)
 
 
-#Helper method for building authorization url.
-#@app.route("/authorization/url", methods=["GET"])
+# Helper method for building authorization url.
+# @app.route("/authorization/url", methods=["GET"])
 @app.context_processor
 def generate_auth_url():
-    
-    
 
     url = f'https://{domain}/authorize' \
         f'?audience={audience}' \
         f'&response_type=token&client_id=' \
         f'{client_id}&redirect_uri=' \
         f'{callback}'
-        
+
     return dict(auth_url=url)
 
 # Helper route to set the current users jwt in session.
+
+
 @app.route('/set_jwt/<string:jwt>', methods=['POST'])
 def set_jwt_session(jwt):
     session['user-jwt'] = jwt
@@ -49,10 +49,12 @@ def set_jwt_session(jwt):
     session['user-permissions'] = payload['permissions']
 
     return jsonify({
-        'Success':True
+        'Success': True
     })
 
 # Route for logging out of auth0 service and clearing off session.
+
+
 @app.route("/logout")
 def logout():
     session.clear()
@@ -69,6 +71,8 @@ def logout():
     )
 
 # Returns a list of all jobs in database.
+
+
 @app.route('/')
 def home():
     if not test:
@@ -78,6 +82,8 @@ def home():
                         "jobs": list(job.format() for job in Job.query.all())})
 
 # This endpoint creates a job through a request form data.
+
+
 @app.route('/job', methods=["POST"])
 @requires_auth(permission="create:job")
 def create_job(jwt):
@@ -94,18 +100,19 @@ def create_job(jwt):
         sinks = ast.literal_eval(form['sinks'])
 
         job = Job(job_name=job_name, contact_name=contact_name, contact_phone=contact_phone, address=address,
-                  material=material, status=status, edge_finish=edge_finish, sinks=list(sinks))   
+                  material=material, status=status, edge_finish=edge_finish, sinks=list(sinks))
+
         job.insert()
 
         if not test:
             return redirect(url_for('home'))
         else:
             return jsonify({"success": True,
-                        "jobs": []})
-    except :
+                        "job_id": job.id})
+    except:
         abort(400)
 
-    
+
 # Endpoint renders the form for creating a job
 @app.route('/job', methods=["GET"])
 @requires_auth(permission="create:job")
@@ -114,8 +121,10 @@ def create_job_form(jwt):
         return render_template('pages/create_job.html', session=session)
     else:
         return jsonify({"success": True})
-    
+
 # Returns a template containing a specific jobs details
+
+
 @app.route('/job/<int:id>', methods=["GET"])
 @requires_auth(permission='read:job-details')
 def view_job(jwt, id):
@@ -129,11 +138,13 @@ def view_job(jwt, id):
             return render_template('pages/view_job.html', job=job.format(), session=session)
         else:
             return jsonify({"success": True,
-                        "job": job.format()}) 
+                        "job": job.format()})
     except:
         abort(400)
-    
+
 # Updates given job with new values.
+
+
 @app.route('/job/<int:id>', methods=["POST"])
 @requires_auth(permission="patch:job")
 def update_job(jwt, id):
@@ -159,12 +170,14 @@ def update_job(jwt, id):
             return redirect(url_for('home'))
         else:
             return jsonify({"success": True,
-                        "job":job.format()})
-        
-    except :
+                        "job": job.format()})
+
+    except:
         abort(400)
 
 # Deletes a specific job
+
+
 @app.route('/job/<int:id>/delete_job', methods=["DELETE"])
 @requires_auth(permission="delete:job")
 def delete_job(jwt, id):
@@ -174,26 +187,30 @@ def delete_job(jwt, id):
             abort(404)
 
         job.delete()
-        
+
         if not test:
             return redirect(url_for('home'))
         else:
             return jsonify({"success": True,
                         "job": job.format()['id']})
     except:
-        return(400)
+        return (400)
 
 # Returns template containing all inventory items.
+
+
 @app.route('/inventory', methods=["GET"])
 @requires_auth(permission="read:inventory")
 def inventory(jwt):
-    print (Inventory.query.all())
     if not test:
         return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()), session=session)
     else:
-        return jsonify({"success": True})
+        return jsonify({"success": True,
+                        "inventory": [item.format() for item in Inventory.query.all()]})
 
 # Returns a template containing a specific inventory item's details
+
+
 @app.route('/inventory/<int:id>', methods=["GET"])
 @requires_auth("read:inventory_item")
 def view_inventory_item(jwt, id):
@@ -202,7 +219,7 @@ def view_inventory_item(jwt, id):
         if not inventory_item:
             abort(404)
         if not test:
-            return render_template('/pages/view_inventory_item.html', inventory_item = inventory_item.format(), session=session)
+            return render_template('/pages/view_inventory_item.html', inventory_item=inventory_item.format(), session=session)
         else:
             return jsonify({"success": True,
                         "inventory_item": inventory_item.format()})
@@ -210,6 +227,8 @@ def view_inventory_item(jwt, id):
         abort(400)
 
 # Updates a specific inventory item with new values.
+
+
 @app.route('/inventory/<int:id>', methods=["POST"])
 @requires_auth("patch:inventory_item")
 def update_inventory_item(jwt, id):
@@ -233,6 +252,8 @@ def update_inventory_item(jwt, id):
         abort(400)
 
 # Returns the form template for inventory item creation
+
+
 @app.route('/inventory/add', methods=["GET"])
 @requires_auth(permission="create:inventory_item")
 def add_inventory_item_form(jwt):
@@ -240,8 +261,10 @@ def add_inventory_item_form(jwt):
         return render_template('/pages/add_inventory_item.html', session=session)
     else:
         return jsonify({"success": True})
-    
+
 # Creates a new inventory_item.
+
+
 @app.route('/inventory/add', methods=["POST"])
 @requires_auth(permission="create:inventory_item")
 def add_inventory_item(jwt):
@@ -249,37 +272,38 @@ def add_inventory_item(jwt):
     try:
         form = request.form
 
-        item = Inventory(sink_id=int(form['sink_id']), count=int(form['count']))
+        item = Inventory(sink_id=int(
+            form['sink_id']), count=int(form['count']))
         item.insert()
-        
+
         if not test:
-            print("here")
             return render_template('/pages/inventory.html', inventory=(item.format() for item in Inventory.query.all()), session=session)
         else:
             return jsonify({"success": True,
-                        "inventory_items": [inventory_item.format() for inventory_item in Inventory.query.all()]})
+                        "inventory_items": [inventory_item.format() for inventory_item in Inventory.query.all()],
+                        "inventory_item_id": item.id})
     except:
         abort(400)
 
-# @app.route('/inventory/<int:id>/delete_inventory_item', methods=["DELETE"])
-# @requires_auth(permission="delete:inventory_item")
-# def delete_inventory_item(jwt, id):
-#     try:
-#         inventory_item = Inventory.query.get(int(id))
+@app.route('/inventory/<int:id>/delete_inventory_item', methods=["DELETE"])
+@requires_auth(permission="delete:inventory_item")
+def delete_inventory_item(jwt, id):
+    try:
+        inventory_item = Inventory.query.get(int(id))
 
-#         if not inventory_item:
-#             abort(404)
+        if not inventory_item:
+            abort(404)
 
-#         inventory_item.delete()
+        inventory_item.delete()
 
-#         if not test:
-#             return redirect(url_for('inventory'))
-#         else:
-#             return jsonify({"success": True,
-#                         "inventory_item": inventory_item.format()['id']})
-
-#     except:
-#         abort(400)
+        if not test:
+            return redirect(url_for('inventory'))
+        else:
+            return jsonify({"success": True,
+                        "inventory_item_id": inventory_item.format()['id'],
+                        "inventory_items":[inventory_item.format() for inventory_item in Inventory.query.all()]})
+    except:
+        abort(400)
 
 # Returns a template with all available sinks
 @app.route('/sinks',methods=["GET"])
@@ -374,7 +398,8 @@ def add_sink(jwt):
             return render_template('/pages/sinks.html', sinks=(sink.format() for sink in Sink.query.all()), session=session)
         else:
             return jsonify({"success": True,
-                        "sinks": [sink.format() for sink in Sink.query.all()]})
+                        "sinks": [sink.format() for sink in Sink.query.all()],
+                        'sink_id':sink.id})
     except:
         abort(400)
 

@@ -29,7 +29,6 @@ def get_token_auth_header():
         auth_header = "Bearer " + session['user-jwt']
     else: 
         auth_header = request.headers.get("Authorization", None)
-        print(auth_header)
 
     if not auth_header:
         raise AuthError({"code": "authorization_header_missing",
