@@ -20,6 +20,8 @@ I couldn't do it this time, because of time constraints, but I would like to add
     - AUTH0_CALLBACK</code>
 - The database_url is from herokuapp, app_secret_key is made up within flask, and all the rest ones are from auth0, the third party authorization service.
 
+- If you would like to run the application locally, you can set up all the environment variables by referring to the environment_variables.txt in the main folder.
+
 ## Auth0 Setup
 - Lets first create a Regular Web application.
     - Call it whatever you want, but always keep it in mind.
