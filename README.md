@@ -22,6 +22,7 @@ I also want to hide things from the frontend depending on certain permissions, a
 - The database_url is from herokuapp, app_secret_key is made up within flask, and all the rest ones are from auth0, the third party authorization service.
 
 - If you would like to run the application locally, you can set up all the environment variables by referring to the environment_variables.txt in the main folder.
+- When running the application either locally or testing the live version, please keep in mind that the login button might glitch once in a while making it seem you are logged out, but you are truly logged in unless you were able to click the "logout" button.
 
 ## Auth0 Setup
 - Lets first create a Regular Web application.
