@@ -9,7 +9,7 @@ from urllib.request import urlopen
 
 AUTH0_DOMAIN = os.environ['AUTH0_DOMAIN']
 ALGORITHMS = ['RS256']
-#API_AUDIENCE = environ.get('API_AUDIENCE', 'coffee')
+# API_AUDIENCE = environ.get('API_AUDIENCE', 'coffee')
 API_AUDIENCE = 'capstoneAPI'
 
 # AuthError Exception
@@ -17,6 +17,8 @@ API_AUDIENCE = 'capstoneAPI'
 AuthError Exception
 A standardized way to communicate auth failure modes
 '''
+
+
 class AuthError(Exception):
     def __init__(self, error, status_code):
         self.error = error
@@ -27,7 +29,7 @@ class AuthError(Exception):
 def get_token_auth_header():
     if session:
         auth_header = "Bearer " + session['user-jwt']
-    else: 
+    else:
         auth_header = request.headers.get("Authorization", None)
 
     if not auth_header:
@@ -50,6 +52,7 @@ def get_token_auth_header():
 
     return header_parts[1]
 
+
 def check_permissions(permission, payload):
     if 'permissions' not in payload:
         abort(400)
@@ -60,6 +63,7 @@ def check_permissions(permission, payload):
             'description': 'Permission Not found',
         }, 401)
     return True
+
 
 def verify_decode_jwt(token):
     # Get public key from Auth0
@@ -128,6 +132,7 @@ def verify_decode_jwt(token):
         'code': 'invalid_header',
         'description': 'Unable to find the appropriate key.'
     }, 400)
+
 
 def requires_auth(permission=''):
     def requires_auth_decorator(f):

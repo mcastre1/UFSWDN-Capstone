@@ -52,7 +52,16 @@ class Job(db.Model):
     edge_finish = Column(db.String)
     sinks = Column(db.ARRAY(db.Integer))
 
-    def __init__(self, job_name, contact_name, contact_phone, address, material, status, edge_finish, sinks):
+    def __init__(
+            self,
+            job_name,
+            contact_name,
+            contact_phone,
+            address,
+            material,
+            status,
+            edge_finish,
+            sinks):
         self.job_name = job_name
         self.contact_name = contact_name
         self.contact_phone = contact_phone
