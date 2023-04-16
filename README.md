@@ -267,6 +267,9 @@ Admin: eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IkdlWnQxR0JZY25jZkJ2eVpheEVIM
 
 If by the time someone reads this the tokens have expired, you can get them from the url after loging in with the above credentials.
 
+## POSTMA
+- If you would like to run POSTMA against the app.py file, please turn on testing mode by changing the test variable to True at the top of said file.
+
 ## Migrations
 - When there is a change on database tables, we need to run the following commands
 - flask db migrate
