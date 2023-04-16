@@ -17,8 +17,9 @@ class CapstoneTestCase(unittest.TestCase):
         self.app = self.server.app
         self.client = self.app.test_client
         self.database_name = os.environ['TEST_DATABASE_NAME']
+        self.host = os.environ['TEST_HOST']
         self.database_path = "postgres://{}/{}".format(
-            'localhost:5432', self.database_name)
+            self.host, self.database_name)
         self.jwt = os.environ['TEST_JWT']
         self.user_auth = os.environ['TEST_USER_JWT']
     def tearDown(self):
